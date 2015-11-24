@@ -22,7 +22,7 @@ def post_action():
         url = youtube_search.search(body)
         os.system('pkill vlc')
         print(url)
-        cmd = "youtube-dl -o - " + url + "| vlc-wrapper -"
+        cmd = "youtube-dl -f 140 -o - " + url + "| vlc-wrapper --novideo --intf dummy -"
         subprocess.Popen(cmd, shell=True)
     return "success"
 
