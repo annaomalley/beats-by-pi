@@ -8,7 +8,7 @@ Requirements
 * Python 2.7.6
 * Flask 0.10.1
 * PyYaml 3.11
-* [Google Data Python Library](https://developers.google.com/gdata/articles/python_client_lib#linux)
+* [Google Data Python Library](https://developers.google.com/gdata/articles/python_client_lib#library)
 * [youtube-dl](https://rg3.github.io/youtube-dl/)
 * VLC player
 * Twilio account and SMS enabled number
