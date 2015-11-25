@@ -27,4 +27,5 @@ def post_action():
     return "success"
 
 if __name__ == '__main__':
+    subprocess.Popen("echo > playlist.txt", shell=True)
     app.run(host='0.0.0.0', port=80)
