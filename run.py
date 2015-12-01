@@ -15,20 +15,20 @@ def get_action():
 @app.route('/', methods=['POST'])
 def post_action():
     body = request.form.get('Body')
-    if body =='#stop'
+    if body =='#stop':
         change_mode('0')
         os.system('pkill vlc')
-    elif body == '#queue'
+    elif body == '#queue':
         change_mode('1')
         os.system('pkill vlc')
         subprocess.Popen('python play.py') 
-    else
-        if check_mode() == '0'
+    else:
+        if check_mode() == '0':
             url = youtube_search.search(body)
             os.system('pkill vlc')
             cmd = "youtube-dl -f 140 -o - " + url + "| vlc-wrapper --play-and-exit --novideo --intf dummy -"
             subprocess.Popen(cmd, shell=True)
-        else
+        else:
             fo = open('playlist.txt', 'a')
             fo.write(body + '\n')
             fo.close()
