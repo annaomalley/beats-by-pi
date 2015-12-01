@@ -1,8 +1,13 @@
+#!/usr/bin/python
+
 from flask import Flask, request, render_template
 import random
 import os
 import subprocess
+from subprocess import check_output
 import youtube_search
+import sys
+import traceback
 
 app = Flask(__name__)
 
@@ -14,25 +19,46 @@ def get_action():
 
 @app.route('/', methods=['POST'])
 def post_action():
-    body = request.form.get('Body')
-    if body =='#stop':
-        change_mode('0')
-        os.system('pkill vlc')
-    elif body == '#queue':
-        change_mode('1')
-        os.system('pkill vlc')
-        subprocess.Popen('python play.py') 
-    else:
-        if check_mode() == '0':
-            url = youtube_search.search(body)
+    try:
+        body = request.form.get('Body')
+        if body =='#stop':
+            print('[RECEIVED] STOP request') 
+            change_mode('0')
             os.system('pkill vlc')
-            cmd = "youtube-dl -f 140 -o - " + url + "| vlc-wrapper --play-and-exit --novideo --intf dummy -"
-            subprocess.Popen(cmd, shell=True)
+            return "Success: STOP"
+        elif body == '#queue':
+            print('[RECEIVED] QUEUE request')
+            change_mode('1')
+            os.system('pkill vlc')
+            subprocess.Popen('./play.py') 
+            return "Success: QUEUE MODE ON"
+        elif body == '#next':
+            if check_mode() == '1':
+                print('[RECEIVED] NEXT request')
+                os.system('pkill vlc')
+                return "Success: NEXT"
+            return "Fail: Not in queue mode"
         else:
-            fo = open('playlist.txt', 'a')
-            fo.write(body + '\n')
-            fo.close()
-    return 0
+            if check_mode() == '0':
+                print('[RECEIVED] PLAY request')
+                url = youtube_search.search(body)
+                if url is None:
+                    return "Fail: Could not find song"
+                os.system('pkill vlc')
+                cmd = "youtube-dl -f 140 -o - " + url + "| vlc-wrapper --play-and-exit --novideo --intf dummy -"
+                subprocess.Popen(cmd, shell=True)
+                return "Success: PLAYING '" + body + "'"
+            else:
+                print('[RECEIVED] ADD request')
+                fo = open('playlist.txt', 'a')
+                fo.write(body + '\n')
+                fo.close()
+                if not is_process_running('vlc'):
+                    subprocess.Popen('./play.py')
+                return "Success: ADDED TO QUEUE '" + body + "'"
+    except Exception, err:
+        print(traceback.format_exc())
+    return "Success" 
 
 def change_mode(mode):
     fo = open('autoplay.txt', 'w')
@@ -45,6 +71,17 @@ def check_mode():
     fo.close()
     return mode
 
+def is_process_running(name):
+    try:
+        process_id = get_pid(name)
+        os.kill(process_id, 0)
+        return True
+    except (OSError, subprocess.CalledProcessError) as e:
+        return False
+
+def get_pid(name):
+    return int(check_output(['pidof','-s',name]))
+
 @app.route('/error', methods=['GET','POST'])
 def error_action():
     return render_template('reply_error.xml')
@@ -55,3 +92,4 @@ if __name__ == '__main__':
     fo.write('0')
     fo.close()
     app.run(host='0.0.0.0', port=80)
+
