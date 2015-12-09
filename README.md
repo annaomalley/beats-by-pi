@@ -24,11 +24,7 @@ Installation
 2. Edit the config.yml file
    ```yaml
     youtube_api_key: 'XXXXXXXXXX' 
-    from_email_user: 'sender@gmail.com' # sends ip info from this address*
-    from_email_pass: 'senderpass'
-    to_email_users: ['receiver@email.com'] # sends ip info to this address
    ```
-  *currently configured to send from gmail accounts
 
 3. Change your Request URL in the Twilio Messaging dashboard to your server's IP and set to HTTP POST
 
